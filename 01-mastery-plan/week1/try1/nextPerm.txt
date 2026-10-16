@@ -1,0 +1,27 @@
+    void nextperm(int[] nums){
+        int n = nums.length;                              // total number of elements in the array
+
+        int i = n - 2;                                    // start at the second-to-last element
+        while (i >= 0 && nums[i] >= nums[i+1]){           // walk left while the array is non-increasing (descending run)
+            i--;                                          // move one position to the left
+        }
+
+        if (i >= 0){                                      // if a pivot was found, a larger permutation exists
+            int j = n - 1;                                // start scanning from the last element
+            while (nums[j] <= nums[i]) {                  // find the first element to the right that is greater than the pivot
+                j--;                                      // keep moving left until that element is found
+            }
+            swap(nums, i, j);                             // swap the values at i and j in the array nums
+        }
+        reverse(nums, i + 1, n - 1);                      // reverse the suffix after i to get the smallest possible tail (if i == -1, reverses the whole array back to ascending order)
+    }
+    void swap(int [] nums, int a, int b){
+        int temp = nums[a];                               // store the value at index a in a temporary variable
+        nums[a] = nums[b];                                // copy the value at index b into index a
+        nums[b] = temp;                                   // place the saved value into index b, completing the swap
+    }
+    void reverse(int[] nums, int left, int right){
+        while (left < right){                             // repeat until the two pointers meet in the middle
+            swap(nums, left++, right--);                  // swap the outer pair and move both pointers inward
+        }
+    }

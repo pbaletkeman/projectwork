@@ -1,0 +1,101 @@
+package week1.queue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public final class BlockingQueue<T> {
+    private static final int DEFAULT_SIZE = 1000;
+    private final List<T> buffer = new ArrayList<>();
+    private final Lock lock = new ReentrantLock();
+    private final Condition notFull  = lock.newCondition();
+    private final Condition notEmpty = lock.newCondition();
+    private int size;
+    private boolean closed = false;
+
+    public int getSize() {
+        lock.lock();
+        try {
+            return size;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void setSize(int s) {
+        if (s <= 0) {
+            throw new IllegalArgumentException("buffer set size must be > 0");
+        }
+        lock.lock();
+        try {
+            size = s;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public BlockingQueue(int size) throws IllegalArgumentException {
+        if (size <= 0) {
+            throw new IllegalArgumentException("buffer size must be > 0");
+        }
+        this.size = size;
+    }
+
+    public BlockingQueue() {
+        this(DEFAULT_SIZE);
+    }
+
+    public void put(T item) throws InterruptedException {
+        if (item == null) {
+            throw new IllegalArgumentException("null cannot be added to queue");
+        }
+        lock.lock();
+        try {
+            while (buffer.size() >= this.size && !closed) {
+                notFull.await();
+            }
+            if (closed) {
+                throw new IllegalStateException("queue is closed");
+            }
+            buffer.add(item);
+            notEmpty.signal();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public T take() throws InterruptedException {
+        lock.lock();
+        try {
+            while (buffer.isEmpty() && !closed) {
+                notEmpty.await();
+            }
+            if (!buffer.isEmpty()) {
+                T item = buffer.remove(0);
+                notFull.signal();
+                return item;
+
+            } else {
+                return null;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void close() {
+        lock.lock();
+        try {
+            if (closed) {
+                return;
+            }
+            closed = true;
+            notFull.signalAll();
+            notEmpty.signalAll();
+        } finally {
+            lock.unlock();
+        }
+    }
+}
