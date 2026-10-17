@@ -16,7 +16,7 @@ A personal workspace combining backend interview preparation, a game design plan
 
 - **Roadmap first:** read [`sequence.md`](sequence.md) to see how the three projects are meant to sequence over the year.
 - **Backend prep:** start at [`01-mastery-plan/the-plan.md`](01-mastery-plan/the-plan.md) for the full curriculum, then follow [`update-plan.md`](01-mastery-plan/update-plan.md) day by day. Requires Python 3, a JDK, and Kotlin.
-- **Game plan:** start at [`03-corps/phase1.md`](03-corps/phase1.md). Phases are sequential; don't start a phase until the previous one's definition of done is met.
+- **Game plan:** start at [`03-corps/phase1.md`](03-corps/phase1.md). Phases are sequential; don't start a phase until the previous one's definition of done is met. To open Phase 1 early, follow the two-week trial in [`03-corps/phase1-kickoff.md`](03-corps/phase1-kickoff.md).
 - **Java project:** from `02-pollygot/`, run:
 
   ```bash

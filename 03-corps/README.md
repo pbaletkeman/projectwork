@@ -28,7 +28,7 @@ Extras to tackle only after the core plan is complete:
 
 ## How to Use This Plan
 
-1. Start with `phase1.md` and work through its success criteria and definition of done.
+1. Start with `phase1.md` and work through its success criteria and definition of done. To open Phase 1 alongside the backend plan rather than waiting, use [`phase1-kickoff.md`](phase1-kickoff.md) — a two-week trial checklist with a decision gate.
 2. Only plan the next phase once the current phase's "Definition of Done" is met.
 3. Keep scope inside the phase's stated time budget; if you run over, cut scope instead of adding features.
 
