@@ -1,5 +1,23 @@
 # Warm-Up Interview Prep — Cleaned Up
 
+- [Warm-Up Interview Prep — Cleaned Up](#warm-up-interview-prep--cleaned-up)
+  - [Foundational Backend Patterns](#foundational-backend-patterns)
+  - [Essential Data Structures \& Algorithms](#essential-data-structures--algorithms)
+    - [Graph Problems](#graph-problems)
+    - [Array Problems](#array-problems)
+    - [String Problems](#string-problems)
+    - [Backtracking \& Permutations](#backtracking--permutations)
+      - [Level 1 — Warm-up (core pattern)](#level-1--warm-up-core-pattern)
+      - [Level 2 — Interview-standard](#level-2--interview-standard)
+      - [Level 3 — Harder variations](#level-3--harder-variations)
+      - [Level 4 — Advanced (rare, shows mastery)](#level-4--advanced-rare-shows-mastery)
+  - [System Design / Micro-Design Questions](#system-design--micro-design-questions)
+    - [High-Frequency Core Questions](#high-frequency-core-questions)
+    - [CRUD-Heavy \& Data-Flow Questions](#crud-heavy--data-flow-questions)
+    - [Web Infrastructure Questions](#web-infrastructure-questions)
+    - [Concurrency-Focused Micro-Design](#concurrency-focused-micro-design)
+  - [Concurrency Concepts](#concurrency-concepts)
+
 ## Foundational Backend Patterns
 
 The original six core primitives:
@@ -56,22 +74,26 @@ The original six core primitives:
 
 ### Backtracking & Permutations
 
-**Level 1 — Warm-up (core pattern)**
+#### Level 1 — Warm-up (core pattern)
+
 - Generate all permutations of a string ("abc" → ["abc","acb","bac","bca","cab","cba"])
 - Generate permutations of an integer array ([1,2,3] → all 3! permutations)
 - Count permutations instead of listing them (n=5 → 120, tests factorial growth understanding)
 
-**Level 2 — Interview-standard**
+#### Level 2 — Interview-standard
+
 - Next permutation ([1,2,3] → [1,3,2]; [3,2,1] → [1,2,3]) — lexicographic reasoning
 - Permutations with duplicates ([1,1,2] → ["112","121","211"]) — pruning + sorting + skip-duplicate logic
 - K-th permutation (n=4, k=9 → "2314") — factorial number system
 
-**Level 3 — Harder variations**
+#### Level 3 — Harder variations
+
 - Permutations of length k (nums=[1,2,3], k=2 → ["12","13","21","23","31","32"])
 - Letter case permutations ("a1b" → ["a1b","a1B","A1b","A1B"]) — branching on characters
 - Phone keypad permutations ("23" → ["ad","ae","af","bd","be","bf","cd","ce","cf"]) — mapping + recursion
 
-**Level 4 — Advanced (rare, shows mastery)**
+#### Level 4 — Advanced (rare, shows mastery)
+
 - Permutation sequence with constraints ("Generate permutations where no two adjacent numbers differ by 1")
 - Permutation of a linked list — pointer manipulation + recursion
 - Permutation of multiset with frequency map — hashmap instead of sorting + skipping
