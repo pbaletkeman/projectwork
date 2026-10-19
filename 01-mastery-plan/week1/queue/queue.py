@@ -35,6 +35,7 @@ class BoundedBuffer():
                 self.not_full.wait()
 
             self.buffer.append(item)
+            self.not_empty.notify()
 
     def consumer(self) -> int:
         item: int
@@ -55,8 +56,9 @@ class BlockingQueue():
         self.not_empty = threading.Condition(self.lock)
 
     def producer(self, item: int) -> None:
-        self.buffer.append(item)
-        self.not_empty.notify()
+        with self.lock:
+            self.buffer.append(item)
+            self.not_empty.notify()
 
     def consumer(self) -> int:
         item: int
