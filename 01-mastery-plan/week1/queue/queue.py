@@ -35,7 +35,6 @@ class BoundedBuffer():
                 self.not_full.wait()
 
             self.buffer.append(item)
-            self.not_empty.notify()
 
     def consumer(self) -> int:
         item: int
