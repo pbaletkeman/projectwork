@@ -17,6 +17,7 @@
 
 from threading import Lock
 import threading
+import time
 
 class BoundedBuffer():
 
@@ -69,3 +70,65 @@ class BlockingQueue():
             item = self.buffer[0]
             self.buffer = self.buffer[1:]
         return item
+
+
+def demo_bounded_buffer() -> None:
+    buffer = BoundedBuffer(size=3)
+
+    def consumer() -> None:
+        try:
+            for _ in range(6):
+                item = buffer.consumer()
+                print(f"consumer: took {item}")
+                time.sleep(0.3)
+        except KeyboardInterrupt:
+            pass
+
+    def producer() -> None:
+        for i in range(1, 7):
+            print(f"producer: putting {i}")
+            buffer.producer(i)
+            print(f"producer: put {i}")
+        print("producer: done")
+
+    consumer_thread = threading.Thread(target=consumer, name="consumer")
+    producer_thread = threading.Thread(target=producer, name="producer")
+
+    consumer_thread.start()
+    producer_thread.start()
+
+    producer_thread.join()
+    consumer_thread.join()
+
+
+def demo_blocking_queue() -> None:
+    queue = BlockingQueue()
+
+    def consumer() -> None:
+        for _ in range(6):
+            item = queue.consumer()
+            print(f"consumer: took {item}")
+            time.sleep(0.3)
+
+    def producer() -> None:
+        for i in range(1, 7):
+            print(f"producer: putting {i}")
+            queue.producer(i)
+        print("producer: done")
+
+    consumer_thread = threading.Thread(target=consumer, name="consumer")
+    producer_thread = threading.Thread(target=producer, name="producer")
+
+    consumer_thread.start()
+    producer_thread.start()
+
+    producer_thread.join()
+    consumer_thread.join()
+
+
+if __name__ == "__main__":
+    print("--- BoundedBuffer (capacity 3) ---")
+    demo_bounded_buffer()
+    print()
+    print("--- BlockingQueue (unbounded) ---")
+    demo_blocking_queue()
