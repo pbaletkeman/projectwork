@@ -9,10 +9,11 @@ class WorkerPool:
 
     def __init__(self, queue_size: int = MAX_QUEUE_SIZE) -> None:
         if queue_size <= 0:
-            raise RuntimeError("worker pool size must be greated than 0")
+            raise ValueError("worker pool size must be greater than 0")
 
         self.queue_size = queue_size
         self.running = True
+        self.started = False
 
         self.queue: list[str] = []
 
@@ -73,12 +74,41 @@ class WorkerPool:
 
     def start(self, num_workers: int) -> None:
 
-        for i in range(num_workers):
+        if num_workers <= 0:
+            raise ValueError("num_workers must be greater than 0")
 
-            worker_thread = threading.Thread(
-                target=self.worker,
-                name=f"worker-{i}"
-            )
+        with self.not_empty:
+            if self.started:
+                return
+            self.started = True
 
-            self.workers.append(worker_thread)
-            worker_thread.start()
+            for i in range(num_workers):
+
+                worker_thread = threading.Thread(
+                    target=self.worker,
+                    name=f"worker-{i}"
+                )
+
+                self.workers.append(worker_thread)
+                worker_thread.start()
+
+
+if __name__ == "__main__":
+    pool = WorkerPool(queue_size=2)
+    print("starting pool with capacity 2 and 1 worker")
+
+    pool.start(1)
+    pool.start(1)  # second start is a no-op
+
+    for i in range(1, 6):
+        # queue capacity is 2, so submit blocks until the worker frees a slot
+        pool.submit(f"job-{i}")
+
+    print("all jobs submitted, shutting down (drains remaining jobs)")
+    pool.shutdown()
+    print("shutdown complete")
+
+    try:
+        pool.submit("too-late")
+    except RuntimeError as e:
+        print(f"submit after shutdown rejected: {e}")

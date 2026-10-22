@@ -17,7 +17,7 @@ public class WorkerPool {
     private final List<Thread> workers = new ArrayList<>();
 
     public WorkerPool(int workerCapacity) {
-        if (workerCapacity <= 0){
+        if (workerCapacity <= 0) {
             throw new IllegalArgumentException("pool size must be > 0");
         }
         this.workerCapacity = workerCapacity;
@@ -113,6 +113,29 @@ public class WorkerPool {
             }
         } finally {
             lock.unlock();
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        WorkerPool pool = new WorkerPool(2);
+        System.out.println("starting pool with capacity 2 and 1 worker");
+
+        pool.start(1);
+        pool.start(1); // second start is a no-op
+
+        for (int i = 1; i <= 5; i++) {
+            // queue capacity is 2, so submit blocks until the worker frees a slot
+            pool.submit("job-" + i);
+        }
+
+        System.out.println("all jobs submitted, shutting down (drains remaining jobs)");
+        pool.shutdown();
+        System.out.println("shutdown complete");
+
+        try {
+            pool.submit("too-late");
+        } catch (IllegalStateException e) {
+            System.out.println("submit after shutdown rejected: " + e.getMessage());
         }
     }
 }
