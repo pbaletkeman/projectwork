@@ -86,11 +86,13 @@ def example_run():
         print("not found")
 
     print("\n" + "-" * 20 + "\n")
+    search_item = Item("2", "name-2", datetime.datetime.fromisoformat("2025-05-06 00:01:30"))
     j = find_first_event_after(items, search_item)
     if j:
         print("found first after:\n" + str(j))
     else:
         print("not found")
+
     print("\n" + "-" * 20 + "\n")
     search_item = Item("2", "name-2", datetime.datetime.fromisoformat("2025-05-09 00:02:00"))
     j = find_exact(items, search_item)
