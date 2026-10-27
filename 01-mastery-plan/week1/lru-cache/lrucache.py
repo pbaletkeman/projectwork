@@ -101,7 +101,10 @@ def sample_program():
     lru_cache.put(1,1)
     lru_cache.put(1,1)
     lru_cache.put(1,1)
-    lru_cache.put(1,1)
+    lru_cache.put(55,1)
+    lru_cache.put(55,1)
+    lru_cache.put(55,1)
+    lru_cache.put(55,1)
     lru_cache.put(1,1)
     print(lru_cache.get_stats())
 
