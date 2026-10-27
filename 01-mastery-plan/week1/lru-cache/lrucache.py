@@ -1,21 +1,28 @@
-class Node:
+from dataclasses import dataclass, field
 
-    def __init__(self, key: int, value: int) -> None:
-        self.key = key
-        self.value = value
-        self.prev = None
-        self.next = None
+
+@dataclass
+class Node:
+    key: int
+    value: int
+    # FIXED: Omit prev and next from the generated repr/print to prevent infinite loops
+    prev: "Node" = field(default=None, repr=False, init=False)
+    next: "Node" = field(default=None, repr=False, init=False)
 
 
 class LRUCache:
 
+
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
-        self.map = dict()         # Key -> Node
+        self.map = dict()        # Key -> Node
         self.head = Node(0,0)    # Dummy head
         self.tail = Node(0,0)    # Dummy tail
         self.head.next = self.tail
         self.tail.prev = self.head
+        self.hits = dict()
+        self.misses: list[int] = []
+
 
     def remove(self, node: Node) -> None:
         '''
@@ -57,7 +64,13 @@ class LRUCache:
             node.value = value
             self.remove(node)
             self.insert(node)
+
+            temp = self.hits[key]
+            self.hits[key] = temp + 1
+
         else:
+            self.hits[key] = 0
+            self.misses.append(key)
             if len(self.map) == self.capacity:
                 # Evict last recently used node (node right before tail)
                 lru_node = self.tail.prev
@@ -67,3 +80,31 @@ class LRUCache:
             new_node = Node(key, value)
             self.insert(new_node)
             self.map[key] = new_node
+
+
+    def get_stats(self) -> str:
+        omitted = {k: v for k, v in self.hits.items() if v > 0}
+        return "\nHits: {Key:Hit}\n" + str(omitted) + "\n\n" + ("-" * 20) + "\nMisses:\n" + str(self.misses)
+
+
+def sample_program():
+    MAX_SIZE = 10
+    # nodes: list[Node] = []
+    # for i in range(MAX_SIZE):
+    #     nodes.append(Node(i,i))
+
+    lru_cache = LRUCache(MAX_SIZE)
+    lru_cache.put(3,1)
+    lru_cache.put(1,1)
+    lru_cache.put(2,1)
+    lru_cache.put(3,1)
+    lru_cache.put(1,1)
+    lru_cache.put(1,1)
+    lru_cache.put(1,1)
+    lru_cache.put(1,1)
+    lru_cache.put(1,1)
+    print(lru_cache.get_stats())
+
+
+if __name__ == "__main__":
+    sample_program()
