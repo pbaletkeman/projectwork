@@ -1,7 +1,11 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-static class Node {
+
+class Node {
     int key;
     int value;
     Node prev;
@@ -22,7 +26,7 @@ static class Node {
 public class LRUCache {
 
     private int capacity;
-    private HashMap<Integer, Integer> map;
+    private HashMap<Integer, Node> map;
     private Node head;
     private Node tail;
     private HashMap<Integer, Integer> hits;
@@ -30,16 +34,16 @@ public class LRUCache {
 
     public LRUCache(int capacity) {
         this.capacity = capacity;
-        this.map = new HashMap<>();
-        this.head = new Node(null, null);
-        this.tail = new Node(null, null);
+        this.map = new HashMap<Integer, Node>();
+        this.head = new Node(0, 0);
+        this.tail = new Node(0, 0);
         this.head.next = this.tail;
         this.tail.prev = this.head;
         this.hits = new HashMap<>();
         this.misses = new ArrayList<>();
     }
 
-    public remove(Node node) {
+    public void remove(Node node) {
         /*
          * Helper: Remove a node from it's current position in the linked list
          */
@@ -49,7 +53,7 @@ public class LRUCache {
         prev.prev = prev;
     }
 
-    public insert(Node node) {
+    public void insert(Node node) {
         /*
          * Helper: Insert a node right after most recently used
          */
@@ -71,16 +75,20 @@ public class LRUCache {
         return node.value;
     }
 
-    public put (int key, int value) {
+    public void put (int key, int value) {
         /*
          * Put or update key-value pair
          */
         if (this.map.containsKey(key)) {
             Node node = this.map.get(key);
             node.value = value;
+            Integer counter = this.hits.get(key) + 1;
+            this.hits.replace(key, counter);
             remove(node);
             insert(node);
         } else {
+            this.hits.put(key, 0);
+            this.misses.add(key);
             if (this.map.size() == this.capacity) {
                 // Evict last recently used node (node right before tail)
                 Node lruNode = this.tail.prev;
@@ -89,8 +97,37 @@ public class LRUCache {
             }
             Node node = new Node(key, value);
             insert(node);
-            this.map.put(node.key, node.value);
+            this.map.put(node.key, node);
         }
+    }
+
+    public String getStats() {
+
+        String hitStats = hits.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() > 0)
+                .map(entry -> entry.getKey() + ":" + entry.getValue())
+                .collect(Collectors.joining(", ", "{", "}"));
+
+        return "\nhits:\n{key:hits}\n" + hitStats + "\n\nmissing:\n" + this.misses;
+    }
+
+    static void main() {
+        final int MAX_SiZE = 10;
+
+        LRUCache lruCache = new LRUCache(MAX_SiZE);
+        lruCache.put(1,1);
+        lruCache.put(1,1);
+        lruCache.put(2,1);
+        lruCache.put(2,1);
+        lruCache.put(2,1);
+
+        lruCache.put(22,1);
+        lruCache.put(22,1);
+        lruCache.put(22,1);
+        lruCache.put(22,1);
+        lruCache.put(22,1);
+        System.out.println(lruCache.getStats());
 
     }
 }
