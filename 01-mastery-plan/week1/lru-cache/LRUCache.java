@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -57,9 +56,9 @@ public class LRUCache {
         /*
          * Helper: Insert a node right after most recently used
          */
-        Node nextNode = this.head.next;
-        this.head.next = node;
-        node.prev = this.head;
+        Node nextNode = head.next;
+        head.next = node;
+        node.prev = head;
         node.next = nextNode;
         nextNode.prev = node;
     }
@@ -69,7 +68,7 @@ public class LRUCache {
             return -1;
         }
 
-        Node node = this.map.get(key);
+        Node node = map.get(key);
         remove(node);
         insert(node);  // Move to front as most recently used
         return node.value;
@@ -79,25 +78,25 @@ public class LRUCache {
         /*
          * Put or update key-value pair
          */
-        if (this.map.containsKey(key)) {
-            Node node = this.map.get(key);
+        if (map.containsKey(key)) {
+            Node node = map.get(key);
             node.value = value;
-            Integer counter = this.hits.get(key) + 1;
-            this.hits.replace(key, counter);
+            Integer counter = hits.get(key) + 1;
+            hits.replace(key, counter);
             remove(node);
             insert(node);
         } else {
-            this.hits.put(key, 0);
-            this.misses.add(key);
-            if (this.map.size() == this.capacity) {
+            hits.put(key, 0);
+            misses.add(key);
+            if (map.size() == capacity) {
                 // Evict last recently used node (node right before tail)
-                Node lruNode = this.tail.prev;
+                Node lruNode = tail.prev;
                 remove(lruNode);
-                this.map.remove(lruNode.key, lruNode.value);
+                map.remove(lruNode.key, lruNode.value);
             }
             Node node = new Node(key, value);
             insert(node);
-            this.map.put(node.key, node);
+            map.put(node.key, node);
         }
     }
 
@@ -109,7 +108,7 @@ public class LRUCache {
                 .map(entry -> entry.getKey() + ":" + entry.getValue())
                 .collect(Collectors.joining(", ", "{", "}"));
 
-        return "\nhits:\n{key:hits}\n" + hitStats + "\n\nmissing:\n" + this.misses;
+        return "\nhits:\n{key:hits}\n" + hitStats + "\n\nmissing:\n" + misses;
     }
 
     static void main() {
