@@ -30,9 +30,17 @@ Each day follows a daily block structure:
 ├── study-guide.md       # Detailed 30-day day-by-day schedule
 ├── update-plan.md       # Updated 30-day schedule (Python/Java/Kotlin), including system design drills
 ├── warm-up.md           # Quick-reference flashcard-style notes for rapid review
-├── week1/               # Week 1 implementations (BlockingQueue, backtracking drills, etc.)
+├── week1/               # Week 1 concurrency primitives
+│   ├── queue/           # BlockingQueue + bounded buffer (Day 1)
+│   ├── append/          # Append-only list + binary search (Day 3)
+│   ├── lru-cache/       # LRU cache (Day 4)
+│   ├── token-bucket/    # Token bucket rate limiter (Day 5) + pseudocode notes
+│   ├── pool/            # Worker pool (Day 6)
+│   └── try1..try3/      # Permutation/backtracking practice drills
 └── old/                 # Earlier standalone exercises (backtracking, LRU cache, rate limiter, etc.)
 ```
+
+Each exercise is a standalone file with a self-verifying demo `main` (e.g. the token-bucket demos burst `B=10` requests, verify 2 are rejected, then confirm `N=5/s` refill).
 
 ## How to Use
 
