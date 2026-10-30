@@ -1,0 +1,57 @@
+enum Status
+    SUCCESS
+    RATE_LIMIT_EXCEEDED
+
+class TokenBucket
+
+    capacity
+    refillRatePerSecond
+
+    currentTokens
+    lastRefillTime
+
+    mutex
+
+    constructor(capacity, refillRatePerSecond)
+        this.capacity = capacity
+        this.refillRatePerSecond = refillRatePerSecond
+
+        currentTokens = capacity
+        lastRefillTime = now()
+
+    request(tokenAmount) : Status
+
+        if tokenAmount <= 0
+            throw IllegalArgumentException
+
+        lock mutex
+
+        try
+
+            currentTime = now()
+
+            elapsedSeconds =
+                currentTime - lastRefillTime
+
+            tokensToAdd =
+                elapsedSeconds * refillRatePerSecond
+
+            currentTokens =
+                min(
+                    capacity,
+                    currentTokens + tokensToAdd
+                )
+
+            lastRefillTime = currentTime
+
+            if tokenAmount > currentTokens
+                return RATE_LIMIT_EXCEEDED
+
+            currentTokens =
+                currentTokens - tokenAmount
+
+            return SUCCESS
+
+        finally
+
+            unlock mutex
