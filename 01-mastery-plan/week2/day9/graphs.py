@@ -3,9 +3,9 @@ from enum import StrEnum
 
 
 class Visited (StrEnum):
-    UNVISITED = "unvisted"
+    UNVISITED = "unvisited"
     VISITING = "visiting"
-    VISITED = "visted"
+    VISITED = "visited"
 
 @dataclass
 class DirNode:
