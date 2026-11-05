@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 enum Visited {
     UNVISITED,
@@ -46,20 +45,9 @@ final class DirNode {
         this.status = status;
     }
 
-     // SAFE EQUALS: Relies strictly on the invariant identity field
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DirNode dirNode = (DirNode) o;
-        return Objects.equals(value, dirNode.value);
-    }
-
-    // SAFE HASHCODE: Matches equals to keep Set lookups stable
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
+    // IDENTITY EQUALS: graph nodes are compared by reference on purpose.
+    // A value-based equals()/hashCode() would treat two distinct nodes that
+    // happen to share a label as one node and hide cycles from the visited set.
 }
 
 final class UnDirNode {
@@ -88,20 +76,7 @@ final class UnDirNode {
         this.neighbors = new ArrayList<>();
     }
 
-    // SAFE EQUALS: Only compares the value to prevent infinite recursion loops
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UnDirNode that = (UnDirNode) o;
-        return Objects.equals(value, that.value);
-    }
-
-    // SAFE HASHCODE: Matches the equals implementation
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
+    // IDENTITY EQUALS: see DirNode - identity keeps distinct nodes distinct.
 }
 
 public class Graphs {
@@ -110,7 +85,7 @@ public class Graphs {
         System.out.println("sample processing for " + node.getValue());
     }
 
-    private DirNode sampleDirDFSNoCycle() {
+    DirNode sampleDirDFSNoCycle() {
         DirNode d = new DirNode("D", List.of(), Visited.UNVISITED);
         DirNode f = new DirNode("F", List.of(), Visited.UNVISITED);
         DirNode h = new DirNode("H", List.of(), Visited.UNVISITED);
@@ -123,7 +98,7 @@ public class Graphs {
         return a;
     }
 
-    private DirNode sampleDirDFSCycle() {
+    DirNode sampleDirDFSCycle() {
         DirNode d = new DirNode("D", List.of(), Visited.UNVISITED);
         DirNode f = new DirNode("F", List.of(), Visited.UNVISITED);
         DirNode h = new DirNode("H", List.of(), Visited.UNVISITED);
@@ -143,15 +118,17 @@ public class Graphs {
         return a;
     }
 
+    // DFS from a single root: only cycles reachable from that root are found.
     public boolean traverseDFS(DirNode dirNode, List<String> result) {
 
         if (dirNode == null) {
             return false;
         }
 
-        if (dirNode.getStatus().equals(Visited.VISITED)) {
+        if (dirNode.getStatus() == Visited.VISITED) {
             return false;
-        } else if (dirNode.getStatus().equals(Visited.VISITING)) {
+        } else if (dirNode.getStatus() == Visited.VISITING) {
+            // back edge: this node is still on the current DFS stack
             return true;
         }
 
@@ -159,11 +136,29 @@ public class Graphs {
         result.add(dirNode.getValue());
         processDirNode(dirNode);
 
-        if (dirNode.getChildren().stream().anyMatch(n -> traverseDFS(n, result))) {
-            return true;
+        // visit every child so a detected cycle does not truncate the traversal
+        boolean cycleFound = false;
+        for (DirNode child : dirNode.getChildren()) {
+            if (traverseDFS(child, result)) {
+                cycleFound = true;
+            }
         }
+
+        // clear VISITING on the way out (both outcomes) so the graph can be
+        // traversed again without reporting a stale cycle
         dirNode.setStatus(Visited.VISITED);
-        return false;
+        return cycleFound;
+    }
+
+    // Multi-root variant: covers graphs with more than one component.
+    public boolean traverseDFS(Iterable<DirNode> dirNodes, List<String> result) {
+        boolean cycleFound = false;
+        for (DirNode dirNode : dirNodes) {
+            if (traverseDFS(dirNode, result)) {
+                cycleFound = true;
+            }
+        }
+        return cycleFound;
     }
 
     public void DFSSample() {
@@ -185,15 +180,20 @@ public class Graphs {
         System.out.println("==================\n\n");
     }
 
+    // Single-root convenience: only the component containing `node` is searched.
     public boolean hasCycle(UnDirNode node) {
-
-        HashSet<UnDirNode> visited = new HashSet<>();
-
         if (node == null) {
             return false;
         }
-        for (UnDirNode n: node.getNeighbors()) {
-            if (!visited.contains(n) && unDFS(n, null, visited)) {
+        return hasCycle(List.of(node));
+    }
+
+    // Multi-root variant: pass every component's root to search the whole graph.
+    public boolean hasCycle(Iterable<UnDirNode> nodes) {
+        HashSet<UnDirNode> visited = new HashSet<>();
+
+        for (UnDirNode node : nodes) {
+            if (!visited.contains(node) && unDFS(node, null, visited)) {
                 return true;
             }
         }
@@ -207,24 +207,25 @@ public class Graphs {
 
         visited.add(node);
 
-        for (UnDirNode n: node.getNeighbors()) {
+        for (UnDirNode n : node.getNeighbors()) {
             if (!visited.contains(n)) {
                 if (unDFS(n, node, visited)) {
                     return true;
                 }
-            } else if (!n.equals(parent)) {
+            } else if (n != parent) {
+                // visited neighbor that is not the edge we came in on -> cycle
                 return true;
             }
         }
         return false;
     }
 
-    private static void link(UnDirNode x, UnDirNode y) {
+    static void link(UnDirNode x, UnDirNode y) {
         x.getNeighbors().add(y);
         y.getNeighbors().add(x);
     }
 
-    private UnDirNode sampleUnDirectedNoCycle() {
+    UnDirNode sampleUnDirectedNoCycle() {
         UnDirNode d = new UnDirNode("D");
         UnDirNode f = new UnDirNode("F");
         UnDirNode h = new UnDirNode("H");
@@ -245,7 +246,7 @@ public class Graphs {
         return a;
     }
 
-    private UnDirNode sampleUnDirectCycle() {
+    UnDirNode sampleUnDirectCycle() {
         UnDirNode d = new UnDirNode("D");
         UnDirNode f = new UnDirNode("F");
         UnDirNode h = new UnDirNode("H");

@@ -1,17 +1,22 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 
 
-class Visited (StrEnum):
+class Visited(StrEnum):
     UNVISITED = "unvisited"
     VISITING = "visiting"
     VISITED = "visited"
 
-@dataclass
+
+# eq=False -> identity semantics: two distinct nodes that happen to share a
+# label must stay distinct, or the visited set would hide cycles.
+@dataclass(eq=False)
 class DirNode:
     value: str
     children: list['DirNode']
     status: Visited
+
 
 @dataclass(eq=False)
 class UnDirNode:
@@ -24,26 +29,40 @@ def process(dir_node: DirNode) -> None:
 
 
 def traverse_dfs(dir_node: DirNode | None, result: list[str]) -> bool:
+    """DFS from a single root: only cycles reachable from that root are found."""
 
     if dir_node is None:
         return False
 
     if dir_node.status == Visited.VISITED:
         return False
-    elif dir_node.status == Visited.VISITING:
+    if dir_node.status == Visited.VISITING:
+        # back edge: this node is still on the current DFS stack
         return True
-    else:  # dir_node.status == Visited.UNVISITED
-        pass
 
     dir_node.status = Visited.VISITING
     result.append(dir_node.value)
     process(dir_node)
 
-    if any(traverse_dfs(n, result) for n in dir_node.children):
-        return True
+    # visit every child so a detected cycle does not truncate the traversal
+    cycle_found = False
+    for child in dir_node.children:
+        if traverse_dfs(child, result):
+            cycle_found = True
 
+    # clear VISITING on the way out (both outcomes) so the graph can be
+    # traversed again without reporting a stale cycle
     dir_node.status = Visited.VISITED
-    return False
+    return cycle_found
+
+
+def traverse_dfs_all(dir_nodes: Iterable[DirNode | None], result: list[str]) -> bool:
+    """Multi-root variant: covers graphs with more than one component."""
+    cycle_found = False
+    for dir_node in dir_nodes:
+        if traverse_dfs(dir_node, result):
+            cycle_found = True
+    return cycle_found
 
 
 def get_sample_data_no_cycle() -> DirNode:
@@ -160,43 +179,57 @@ def directed_graph_sample() -> None:
     print("directed")
     data1 = get_sample_data_no_cycle()
     result1: list[str] = []
-    has_cycle1: bool = False
     has_cycle1 = traverse_dfs(data1, result1)
     print(result1)
     print("cycle: " + str(has_cycle1))
     print("-" * 30)
     data2 = get_sample_data_cycle()
     result2: list[str] = []
-    has_cycle2: bool = False
     has_cycle2 = traverse_dfs(data2, result2)
     print(result2)
     print("cycle: " + str(has_cycle2))
     print("-" * 30)
 
+
 # Undirected Graph
 
-def has_cycle(un_dir_node: UnDirNode) -> bool:
+def has_cycle(un_dir_node: UnDirNode | None) -> bool:
+    """Single-root convenience: only the component containing the node is searched."""
+    if un_dir_node is None:
+        return False
+    return has_cycle_all([un_dir_node])
+
+
+def has_cycle_all(un_dir_nodes: Iterable[UnDirNode]) -> bool:
+    """Multi-root variant: pass every component's root to search the whole graph."""
     visited: set[UnDirNode] = set()
 
-    for n in un_dir_node.neighbors:
-        if n not in visited and dfs(n, None, visited):
+    for node in un_dir_nodes:
+        if node not in visited and un_dfs(node, None, visited):
             return True
     return False
 
-def dfs(node:UnDirNode | None, parent: UnDirNode | None, visited: set[UnDirNode]) -> bool:
-    if not node:
+
+def un_dfs(node: UnDirNode | None, parent: UnDirNode | None, visited: set[UnDirNode]) -> bool:
+    if node is None:
         return False
 
     visited.add(node)
 
     for n in node.neighbors:
-        if not n in visited:
-            if dfs(n, node, visited):
+        if n not in visited:
+            if un_dfs(n, node, visited):
                 return True
         elif n is not parent:
+            # visited neighbor that is not the edge we came in on -> cycle
             return True
 
     return False
+
+
+def link(x: UnDirNode, y: UnDirNode) -> None:
+    x.neighbors.append(y)
+    y.neighbors.append(x)   # undirected = both directions
 
 
 def get_undirected_data_no_cycle() -> UnDirNode:
@@ -208,10 +241,6 @@ def get_undirected_data_no_cycle() -> UnDirNode:
     b = UnDirNode(value="B", neighbors=[])
     c = UnDirNode(value="C", neighbors=[])
     a = UnDirNode(value="A", neighbors=[])
-
-    def link(x: UnDirNode, y: UnDirNode) -> None:
-        x.neighbors.append(y)
-        y.neighbors.append(x)   # undirected = both directions
 
     link(a, b)
     link(a, c)
@@ -234,10 +263,6 @@ def get_undirected_data_cycle() -> UnDirNode:
     c = UnDirNode(value="C", neighbors=[])
     a = UnDirNode(value="A", neighbors=[])
 
-    def link(x: UnDirNode, y: UnDirNode) -> None:
-        x.neighbors.append(y)
-        y.neighbors.append(x)
-
     link(a, b)
     link(a, c)
     link(b, d)
@@ -249,14 +274,15 @@ def get_undirected_data_cycle() -> UnDirNode:
 
     return a
 
+
 def undirected_graph_sample() -> None:
     print("Undirected")
     data1 = get_undirected_data_cycle()
     data2 = get_undirected_data_no_cycle()
-    print(data1)
+    print(data1.value)
     print("has cycle: " + str(has_cycle(data1)))
     print("-" * 20)
-    print(data2)
+    print(data2.value)
     print("has cycle: " + str(has_cycle(data2)))
 
 
