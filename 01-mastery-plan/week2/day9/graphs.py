@@ -5,7 +5,7 @@ from enum import StrEnum
 class Visited (StrEnum):
     UNVISITED = "unvisted"
     VISITING = "visiting"
-    VISITED = "visting"
+    VISITED = "visted"
 
 @dataclass
 class DirNode:
