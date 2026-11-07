@@ -132,7 +132,7 @@ public class Topological {
             }
         }
 
-        // --- Step 2: computer in-degrees (how many edges point *at* each node)
+        // --- Step 2: compute in-degrees (how many edges point *at* each node)
         HashMap<Node, Integer> inDegree = new HashMap<>();
         for (Node n : nodes) {
             inDegree.put(n, 0);
@@ -146,7 +146,7 @@ public class Topological {
             }
         }
 
-        // --- Step 3: see ther queue with all source nodes (in-degree 0)
+        // --- Step 3: see the queue with all source nodes (in-degree 0)
         List<Node> kQueue = new ArrayList<>();
         for (Node n: nodes) {
             Integer num = inDegree.get(n);
@@ -175,7 +175,7 @@ public class Topological {
             }
         }
 
-        // if we couldn't place every node, the leftover nodes from at least one cycle
+        // if we couldn't place every node, the leftover nodes form at least one cycle
         if (results.size() != nodes.size()) {
             System.err.println("cycle found");
             return results;
@@ -222,7 +222,7 @@ public class Topological {
         System.out.println("\nDFS sort");
         System.out.println(topological.sort(topological.buildSampleGraph()));
         System.out.println("\nKahn's sort");
-        System.err.println(topological.kahns(topological.buildSampleGraph()));
+        System.out.println(topological.kahns(topological.buildSampleGraph()));
 
         System.out.println("\nCyclic graph (should report cycle) ");
         System.out.println("DFS sort:");
