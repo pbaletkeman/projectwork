@@ -37,8 +37,16 @@ Each day follows a daily block structure:
 │   ├── token-bucket/    # Token bucket rate limiter (Day 5) + pseudocode notes
 │   ├── pool/            # Worker pool (Day 6)
 │   └── try1..try3/      # Permutation/backtracking practice drills
+├── week2/               # Week 2 graph patterns
+│   ├── day8/            # DFS & BFS (Day 8)
+│   ├── day9/            # Cycle detection (Day 9)
+│   └── day10/           # Topological sort (Day 10) — ✅ complete
 └── old/                 # Earlier standalone exercises (backtracking, LRU cache, rate limiter, etc.)
 ```
+
+## Progress
+
+- **Day 10 — Topological Sort: ✅ Complete (2026-11-09)** — Python, Java, and Kotlin implementations of both DFS postorder and Kahn's algorithm in `week2/day10/`, each verified against valid, cyclic, and empty graphs.
 
 Each exercise is a standalone file with a self-verifying demo `main` (e.g. the token-bucket demos burst `B=10` requests, verify 2 are rejected, then confirm `N=5/s` refill).
 

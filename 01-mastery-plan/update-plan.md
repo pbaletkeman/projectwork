@@ -39,7 +39,6 @@ A 30-day study plan for backend interview preparation, with every exercise imple
     - [Day 29: Mock Interview](#day-29-mock-interview)
     - [Day 30: Final Review](#day-30-final-review)
 
-
 ## Summary
 
 - **Week 1 (Days 1-7): Backend Foundations & Concurrency** — Core primitives built from scratch: mutexes, condition variables, semaphores, binary search over event logs, LRU cache, rate limiting, and worker pools, ending with a review of the six foundational patterns.
@@ -156,6 +155,8 @@ These six primitives are repeatedly emphasized as foundational backend patterns.
 - Master 3-state DFS
 
 ### Day 10: Topological Sort
+
+**Status:** ✅ Complete (2026-11-09) — implemented in `week2/day10/` (`topological.py`, `Topological.java`, `topological.kt`), covering both DFS postorder and Kahn's algorithm with self-verifying demos for valid, cyclic, and empty graphs.
 
 **Problems:**
 

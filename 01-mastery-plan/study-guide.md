@@ -479,6 +479,8 @@ Detect cycle in:
 
 ### Day 10 — Topological Sort
 
+**Status:** ✅ Complete (2026-11-09) — all segments delivered in `week2/day10/`: concept study (DFS postorder + Kahn's), Java (`Topological.java`), Kotlin (`topological.kt`), Python (`topological.py`), each with a self-verifying demo.
+
 #### Segment 1 — Concept Study - Day 10
 
 - DFS postorder
